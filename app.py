@@ -1,7 +1,6 @@
-
+from joblib import load
 import streamlit as st
 import pandas as pd
-import joblib
 import time
 
 # ---------------- PAGE CONFIG ----------------
@@ -61,7 +60,7 @@ st.markdown("""
     font-weight:bold;
 }
 
-div[data-testid="stSidebar"]{
+div[data-testid="stSidebar"] {
     background:#111827;
 }
 
@@ -83,9 +82,17 @@ div[data-testid="stSidebar"]{
 """, unsafe_allow_html=True)
 
 # ---------------- LOAD MODEL ----------------
-model = joblib.load("knn_heart_model.pkl")
-scaler = joblib.load("heart_scaler.pkl")
-expected_columns = joblib.load("heart_columns.pkl")
+try:
+    model = load("knn_heart_model.pkl")
+    scaler = load("heart_scaler.pkl")
+    expected_columns = load("heart_columns.pkl")
+except Exception as e:
+    st.error(f"❌ Error loading model files: {e}")
+    st.info(
+        "Make sure knn_heart_model.pkl, heart_scaler.pkl and "
+        "heart_columns.pkl are present in your repository."
+    )
+    st.stop()
 
 # ---------------- HEADER ----------------
 st.markdown(
@@ -252,7 +259,7 @@ if st.button("🔍 Predict Heart Disease Risk"):
 
     scaled_input = scaler.transform(input_df)
 
-    with st.spinner("Analyzing patient data..."):
+    with st.spinner("🔍 Analyzing patient data..."):
         time.sleep(1)
         prediction = model.predict(scaled_input)[0]
 
@@ -286,4 +293,3 @@ st.markdown(
     "<center style='color:lightgray;'>❤️ Developed by Mitul Sai</center>",
     unsafe_allow_html=True
 )
-
